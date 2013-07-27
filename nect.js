@@ -2,12 +2,14 @@
 function nect(){
     var innerHTMLElements;
     var valueElements;
+    var selectElements;
 }
 
 /* Init */
 nect.init = function(){
     nect.innerHTMLElements = new Array();
     nect.valueElements = new Array();
+    nect.selectElements = new Array();
 
     var input = document.getElementsByTagName("input");
     var div = document.getElementsByTagName("div");
@@ -20,7 +22,7 @@ nect.init = function(){
         nect.innerHTMLElements.push(div[i].id);
     }
     for(var i = 0; i < select.length; i++){
-        nect.valueElements.push(select[i].name);
+        nect.selectElements.push(select[i].name);
     }
 }
 
@@ -31,18 +33,22 @@ nect.to = function(url){
     for(var i = 0; i<nect.valueElements.length;i++){
         var key = nect.valueElements[i];
         var val = document.getElementById(key).value;
-        jsonStr += '"'+val+'":"'+val+'",';
+        jsonStr += '"'+key+'":"'+val+'",';
     }
-    for(var i = 0; i< nect.innerHTMLElements;i++){
-        var key = nect.valueElements[i];
-        var val = document.getElementById(key).innerHTML;
-        jsonStr += '"'+val+'":"'+val+'",';
+    for(var i = 0; i<nect.selectElements.length;i++){
+        var key = nect.selectElements[i];
+        var val = document.getElementsByName(key)[0].selectedIndex;
+        jsonStr += '"'+key+'":"'+val+'",';
     }
-    
+    for(var i = 0; i<nect.innerHTMLElements.length;i++){
+        var key = nect.innerHTMLElements[i];
+        var val = document.getElementById(key).firstChild.nodeValue;
+        alert(val);
+        jsonStr += '"'+key+'":"'+val+'",';
+    }
+
     jsonStr = jsonStr.slice(0,-1);
     jsonStr += "}";
-    alert(jsonStr);
-    var data = JSON.parse(jsonStr);
 
 	//send json
     var xhr = new XMLHttpRequest();
@@ -52,12 +58,12 @@ nect.to = function(url){
 
         if( this.readyState == READYSTATE_COMPLETED && 
             this.status == HTTP_STATUS_OK ){
-                alert( this.responseText );
+                alert(xhr.responseText);
         }
     }
     xhr.open('POST',url);
-    xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
-    xhr.send(EncodeHTMLForm(data));
+    xhr.setRequestHeader('Content-Type','text/plain');
+    xhr.send(jsonStr);
 }
 
 window.onload = function(){
